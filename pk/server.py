@@ -8,7 +8,7 @@ from pk import common
 
 logger = logging.getLogger(__name__)
 
-class PortKnockerManager:
+class PkDaemon:
 
     host = "localhost"
     state = None

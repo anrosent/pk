@@ -13,12 +13,12 @@ def testPkConnect():
     common.on_thread(sock.listen, 1)
 
     # setup portknocker daemon
-    s = server.PortKnockerManager()
+    s = server.PkDaemon()
     s.register(secret_port, secret)
     common.on_thread(s.start)
     
     # use PK client to connect
-    c = client.PortKnockClient(secret_host, secret)
+    c = client.PkClient(secret_host, secret)
     conn = c.connect()
 
     # Verify that we got redirect to the secret host

@@ -5,7 +5,7 @@ from pk import common
 
 logger = logging.getLogger(__name__)
 
-class PortKnockClient:
+class PkClient:
 
     def __init__(self, host, secret, n_knocks=4, port_range=(10000, 11000)):
         self.host = host
@@ -18,6 +18,7 @@ class PortKnockClient:
         for ix, k in enumerate(self.knocks):
 
             sock = self._connect_single(k)
+
             # look for message on last knock
             if ix == len(self.knocks) - 1:
                 data = json.loads(sock.recv(1024).decode('utf8'))
@@ -31,7 +32,3 @@ class PortKnockClient:
 
     def get_knocks(self):
         return self.knocks
-    # generate knocks
-    # connect to host in order
-    # timeout?
-    # return socket at end (success message w/ port on final knock?)
