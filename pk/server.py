@@ -2,6 +2,8 @@ import json
 import logging
 import socket
 import selectors
+
+from multiprocessing import Pipe
 from pk import common
 
 logger = logging.getLogger(__name__)
@@ -12,8 +14,10 @@ class PortKnockerManager:
     state = None
     service_port = None
     selector = selectors.DefaultSelector()
+    running = False
+    runner = None
 
-    def register(self, service_port, secret, n_knocks=2, port_range=(10000,11000)):
+    def register(self, service_port, secret, n_knocks=4, port_range=(10000,11000)):
         self.service_port = service_port
         knock = common._make_knocks(secret, n_knocks, port_range)
         self._reserve(*knock)
@@ -24,6 +28,7 @@ class PortKnockerManager:
         for port in knocks:
             logger.debug("Reserving port %s" % port)
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             sock.bind((self.host, port))
             sock.listen(1)
             sockmap[sock] = port
@@ -35,6 +40,13 @@ class PortKnockerManager:
         for sock, port in self.state.get_sockmap().items():
             self.selector.register(sock, selectors.EVENT_READ, self._knock_handler)
 
+        self.stopper, recver = Pipe()
+        self.selector.register(recver, selectors.EVENT_READ, self._stop_handler)
+
+    def _stop_handler(self, p, mask):
+        logger.info("STOP message received")
+        self.running = False
+
     def _knock_handler(self, sock, mask):
         # TODO: something more efficient?
         conn, addr = sock.accept()
@@ -44,11 +56,16 @@ class PortKnockerManager:
 
         conn.close()
 
+    def stop(self):
+        logger.info("Sending STOP message to server")
+        self.stopper.send("stop".encode('utf8'))
+
     def start(self):
-        common.on_thread(self.run, [])
+        self.running = True
+        self.runner = common.on_thread(self.run)
 
     def run(self):
-        while True:
+        while self.running:
             events = self.selector.select()
             for key, mask in events:
                 cb = key.data

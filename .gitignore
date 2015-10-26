@@ -71,7 +71,7 @@ target/
 # Following section ignores files for virtualenv <<<<<<<<<
 # Virtualenv
 # http://iamzed.com/2009/05/07/a-primer-on-virtualenv/
-venv
+.venv
 .Python
 [Ii]nclude
 [Ll]ib

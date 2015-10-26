@@ -21,7 +21,7 @@ def sock_open(host, port):
     sock.connect((host, port))
     return sock 
 
-def on_thread(f, args):
-    t = threading.Thread(target=f, args=args)
+def on_thread(f, *args, **kwargs):
+    t = threading.Thread(target=f, args=args, kwargs=kwargs)
     t.start()
     return t
