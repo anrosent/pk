@@ -68,3 +68,15 @@ docs/_build/
 target/
 
 # End ignores for python >>>>>>>>>>>>
+# Following section ignores files for virtualenv <<<<<<<<<
+# Virtualenv
+# http://iamzed.com/2009/05/07/a-primer-on-virtualenv/
+.Python
+[Bb]in
+[Ii]nclude
+[Ll]ib
+[Ss]cripts
+pyvenv.cfg
+pip-selfcheck.json
+
+# End ignores for virtualenv >>>>>>>>>>>>
