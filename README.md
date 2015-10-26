@@ -29,7 +29,6 @@ daemon.start()
 
 from pk import client
 
-secret_port = 8080
 secret = "very-secret"
 pkclient = client.PkClient(secret_host, secret)
 
