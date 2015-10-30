@@ -13,7 +13,7 @@ def testPkConnect():
     common.on_thread(sock.listen, 1)
 
     # setup portknocker daemon
-    s = server.PkDaemon()
+    s = server.PkDaemon(iptables=False)
     s.register(secret_port, secret)
     common.on_thread(s.start)
     

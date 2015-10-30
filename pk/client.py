@@ -21,8 +21,10 @@ class PkClient:
 
             # look for message on last knock
             if ix == len(self.knocks) - 1:
-                data = json.loads(sock.recv(1024).decode('utf8'))
-                service_port = data['port']
+                logger.debug("Success! Receiving hidden service port")
+                data = sock.recv(1024).decode('utf8')
+                service_port = json.loads(data)['port']
+                logger.info("Hidden service port is %s" % service_port)
                 
         return common.sock_open(self.host, service_port)
 
