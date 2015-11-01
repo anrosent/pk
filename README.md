@@ -2,7 +2,7 @@ pk: A Port Knocking server daemon and client
 ===
 
 #Introduction
-`pk` is a way to expose services behind a layer that employs a port-knocking protocol to control client access. The client and server applications use a shared secret, a tuple `(host, port_range, secret)` to negotiate access. 
+`pk` is a way to expose services behind a layer that employs a port-knocking protocol to control client access. The client and server applications use a shared secret, a tuple `(host, secret)` to negotiate access. 
 
 The daemon installs an `iptables` rule to DROP all TCP traffic to the provided service port, removing the filter on a successful knock.
 
