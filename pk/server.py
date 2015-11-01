@@ -23,11 +23,11 @@ class PkDaemon:
     def __init__(self, iptables=True):
         self.iptables = iptables
 
-    def register(self, service_port, secret, port_range=(10000,11000)):
+    def register(self, service_port, secret):
         self.service_port = service_port
 
         # Compute secret knock sequence and reserve knocking ports
-        knock = common._make_knocks(secret, port_range)
+        knock = common._make_knocks(secret)
         self._reserve(*knock)
 
         # Register finalizer that uninstalls iptables inbound rule below
@@ -123,7 +123,6 @@ class PkDaemon:
             for key, mask in events:
                 cb = key.data
                 cb(key.fileobj, mask)
-        # if we get any other connects in the port range, reset (range should be small then)
 
 # TODO: multiplex state by client addr
 class KnockState:
