@@ -23,11 +23,11 @@ class PkDaemon:
     def __init__(self, iptables=True):
         self.iptables = iptables
 
-    def register(self, service_port, secret, n_knocks=4, port_range=(10000,11000)):
+    def register(self, service_port, secret, port_range=(10000,11000)):
         self.service_port = service_port
 
         # Compute secret knock sequence and reserve knocking ports
-        knock = common._make_knocks(secret, n_knocks, port_range)
+        knock = common._make_knocks(secret, port_range)
         self._reserve(*knock)
 
         # Register finalizer that uninstalls iptables inbound rule below

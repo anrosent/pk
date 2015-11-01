@@ -2,14 +2,16 @@ import hashlib
 import threading
 import socket
 
+NUM_KNOCKS = 10
+
 def mhash(s):
     return int.from_bytes(hashlib.md5(s.encode('utf8')).digest(), 'little')
 
 def make_int(s):
     return int.from_bytes(s.encode('utf8'), 'little')
 
-def _make_knocks(secret, n_knocks, prange):
-    return [_make_knock(secret, i, prange) for i in range(n_knocks)]
+def _make_knocks(secret, prange):
+    return [_make_knock(secret, i, prange) for i in range(NUM_KNOCKS)]
 
 def _make_knock(secret, knock_ix, prange):
     rsize = prange[-1] - prange[0]
