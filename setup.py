@@ -4,10 +4,10 @@ except ImportError:
     from distutils.core import setup
 
 config = {
-    'description': 'My Project',
+        'description': 'pk: server daemon and client for running and accessing services via shared-secret port-knocking protocol',
     'author': 'Anson Rosenthal',
-    'url': 'URL to get it at.',
-    'download_url': 'Where to download it.',
+    'url': 'https://github.com/anrosent/pk.git',
+    'download_url': 'https://github.com/anrosent/pk.git',
     'author_email': 'anson.rosenthal@gmail.com',
     'version': '0.1',
     'install_requires': ['nose'],

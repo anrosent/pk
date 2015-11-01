@@ -7,12 +7,10 @@ logger = logging.getLogger(__name__)
 
 class PkClient:
 
-    def __init__(self, host, secret, n_knocks=4, port_range=(10000, 11000)):
+    def __init__(self, host, secret):
         self.host = host
         self.secret = secret
-        self.n_knocks = n_knocks
-        self.port_range = port_range
-        self.knocks = common._make_knocks(secret, n_knocks, port_range)
+        self.knocks = common._make_knocks(secret)
 
     def connect(self):
         for ix, k in enumerate(self.knocks):
