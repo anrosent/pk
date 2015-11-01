@@ -6,8 +6,6 @@ pk: A Port Knocking server daemon and client
 
 The daemon installs an `iptables` rule to DROP all TCP traffic to the provided service port, removing the filter on a successful knock.
 
-#What this looks like 
-
 ##Server
 
 ```python
