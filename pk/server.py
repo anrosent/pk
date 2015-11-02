@@ -7,6 +7,7 @@ import selectors
 from multiprocessing import Pipe
 from pk import common
 from pk import firewall
+from pk import knock
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +51,7 @@ class PkDaemon:
             sock.listen(1)
             sockmap[sock] = port
 
-        self.state = KnockState(knocks, sockmap) 
+        self.state = knock.KnockMuxer(knocks, sockmap) 
         self._build_selector()
 
     def _build_selector(self):
@@ -77,7 +78,6 @@ class PkDaemon:
             resp = json.dumps(dict(port=self.service_port)).encode('utf8')
             conn.sendall(resp)
 
-
         conn.close()
 
     def stop(self):
@@ -95,28 +95,3 @@ class PkDaemon:
                 cb = key.data
                 cb(key.fileobj, mask)
 
-# TODO: multiplex state by client addr
-class KnockState:
-    
-    def __init__(self, knock, sockmap):
-        self.knock = knock
-        self.sockmap = sockmap
-        self._ix = 0
-
-    def put(self, sock, conn):
-        k = self.sockmap[sock]
-        logger.debug("Knock on port %s from client %s" % (k, conn.getpeername()))
-        if self.knock[self._ix] != k:
-            logger.debug("Wrong knock, resetting")
-            self._ix = 0
-            return False
-        elif self._ix == len(self.knock) - 1:
-            logger.debug("Correct, sequence complete")
-            return True
-        else:
-            self._ix += 1
-            logger.debug("Correct, advancing to knock %s/%s" % (self._ix, len(self.knock)))
-            return False
-
-    def get_sockmap(self):
-        return self.sockmap
