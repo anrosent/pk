@@ -96,7 +96,7 @@ class PkDaemon:
     def _knock_handler(self, sock, mask):
         # TODO: something more efficient?
         conn, addr = sock.accept()
-        if self.state.put(sock):
+        if self.state.put(sock, conn):
 
             # Unblock firewall to hidden service
             # TODO: timeout/heartbeat until we shut again
@@ -132,9 +132,9 @@ class KnockState:
         self.sockmap = sockmap
         self._ix = 0
 
-    def put(self, sock):
+    def put(self, sock, conn):
         k = self.sockmap[sock]
-        logger.debug("Knock on port %s" % k)
+        logger.debug("Knock on port %s from client %s" % (k, conn.getpeername()))
         if self.knock[self._ix] != k:
             logger.debug("Wrong knock, resetting")
             self._ix = 0

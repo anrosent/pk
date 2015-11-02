@@ -20,9 +20,17 @@ def _make_knock(secret, knock_ix):
     rsize = max_port - min_port
     return (mhash(secret + str(knock_ix)) % rsize) + min_port
 
-def sock_open(host, port):
+def sock_open(host, port, localaddr=None):
+    '''
+    Let clients pick local addr to reuse if they want for purpose of 
+    firewalling hidden services by client addr
+    '''
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # TODO: timeout
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    if localaddr:
+        sock.bind(localaddr)
+
     sock.connect((host, port))
     return sock 
 
