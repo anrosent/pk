@@ -35,10 +35,10 @@ class PkDaemon:
         self._reserve(*knock)
 
         # Register finalizer that uninstalls iptables inbound rule below
-        atexit.register(lambda: self.firewall.unblock(service_port))
+        atexit.register(self.firewall.clear)
 
         # Install iptables rule to block TCP pakcets inbound to service port
-        self.firewall.block(service_port)
+        self.firewall.block_all(service_port)
 
     def _reserve(self, *knocks):
         logger.info("Knock is %s. Reserving ports" % str(knocks))
@@ -68,11 +68,12 @@ class PkDaemon:
     def _knock_handler(self, sock, mask):
         # TODO: something more efficient?
         conn, addr = sock.accept()
-        if self.state.put(sock, conn):
+        client = conn.getpeername()
+        if self.state.put(sock, client):
 
-            # Unblock firewall to hidden service
+            # Unblock firewall to hidden service for this client
             # TODO: timeout/heartbeat until we shut again
-            self.firewall.unblock(self.service_port)
+            self.firewall.unblock(self.service_port, client)
 
             # Send port for hidden service to client
             resp = json.dumps(dict(port=self.service_port)).encode('utf8')

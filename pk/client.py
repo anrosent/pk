@@ -26,7 +26,7 @@ class PkClient:
                 logger.info("Hidden service port is %s" % service_port)
             sock.close()
 
-        return common.sock_open(self.host, service_port)
+        return self._connect_single(service_port)
 
     def _connect_single(self, k):
         _, lport = self.localaddr

@@ -10,8 +10,7 @@ class KnockMuxer:
         self.knock = knock
         self.sockmap = sockmap
 
-    def put(self, sock, conn):
-        client = conn.getpeername()
+    def put(self, sock, client):
         logger.debug("Knock on %s from client %s" % (str(sock.getsockname()), str(client)))
         if client in self.client_state:
             logger.debug("Found state for client %s" % str(client))
@@ -24,7 +23,6 @@ class KnockMuxer:
     def get_sockmap(self):
         return self.sockmap
 
-# TODO: multiplex state by client addr
 class KnockState:
     
     def __init__(self, knock, sockmap):
