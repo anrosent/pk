@@ -5,8 +5,8 @@ import socket
 import selectors
 
 from multiprocessing import Pipe
-from iptc import Rule, Chain, Table
 from pk import common
+from pk import firewall
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,10 @@ class PkDaemon:
     runner = None
 
     def __init__(self, iptables=True):
-        self.iptables = iptables
+        if iptables:
+            self.firewall = firewall.IptablesFirewall()
+        else:
+            self.firewall = firewall.DummyFirewall()
 
     def register(self, service_port, secret):
         self.service_port = service_port
@@ -31,43 +34,11 @@ class PkDaemon:
         self._reserve(*knock)
 
         # Register finalizer that uninstalls iptables inbound rule below
-        if self.iptables:
-            atexit.register(self._unblock_port)
+        atexit.register(lambda: self.firewall.unblock(service_port))
 
-            # Install iptables rule to block TCP pakcets inbound to service port
-            self._block_port()
+        # Install iptables rule to block TCP pakcets inbound to service port
+        self.firewall.block(service_port)
 
-    def _unblock_port(self):
-        if not self.port_is_open:
-            logger.info("Deleting iptables rule to DROP TCP:%s" % self.service_port)        
-            chain, rule = self._build_iptables_rule()
-            chain.delete_rule(rule)
-            self.port_is_open = True
-        else:
-            logger.info("Svc port %s is already open" % self.service_port)
-
-    def _block_port(self):
-        logger.info("Creating iptables rule to DROP TCP:%s" % self.service_port)
-        chain, rule = self._build_iptables_rule()
-
-        logger.info("Installing iptables rule...")
-        chain.insert_rule(rule)
-        logger.info("Successfully installed iptables DROP TCP:%s" % self.service_port)
-        self.port_is_open = False
-
-    def _build_iptables_rule(self):
-        rule = Rule()
-        
-        rule.protocol = "tcp"
-        match = rule.create_match("tcp")
-        match.dport = str(self.service_port)
-
-        target = rule.create_target("DROP")
-
-        chain = Chain(Table(Table.FILTER), "INPUT")
-        return chain, rule
-
-   
     def _reserve(self, *knocks):
         logger.info("Knock is %s. Reserving ports" % str(knocks))
         sockmap = {}
@@ -100,7 +71,7 @@ class PkDaemon:
 
             # Unblock firewall to hidden service
             # TODO: timeout/heartbeat until we shut again
-            self._unblock_port()
+            self.firewall.unblock(self.service_port)
 
             # Send port for hidden service to client
             resp = json.dumps(dict(port=self.service_port)).encode('utf8')
