@@ -2,9 +2,9 @@ pk: A Port Knocking server daemon and client
 ===
 
 #Introduction
-`pk` is a way to expose services behind a layer that employs a port-knocking protocol to control client access. The client and server applications use a simple shared secret to negotiate access. 
+`pk` is a way to expose services behind a layer that employs a shared-secret port-knocking protocol to control client access.
 
-The daemon installs an `iptables` rule to DROP all TCP traffic to the provided service port, removing the filter on a successful knock.
+When a client successfully authenticates, the daemon responds with the port on which the hidden service is listening, and installs an `iptables` rule to permit the client to connect to the hidden service.
 
 ##Server
 
@@ -38,5 +38,4 @@ hidden_conn = pkclient.connect()
 Cool enhancements:
 
  - Support for multiple hidden services
- - Support for closing the firewall after timeout using heartbeat from client socket
- - Support for timing out multiple clients to the same service
+ - Support for closing firewall to clients who don't heartbeat to the daemon
