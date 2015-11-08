@@ -1,6 +1,7 @@
 pk: A Port Knocking server daemon and client
 ===
-[![Build Status](https://travis-ci.org/anrosent/pk.svg?branch=master)](https://travis-ci.org/anrosent/pk)
+`master` [![Build Status](https://travis-ci.org/anrosent/pk.svg?branch=master)](https://travis-ci.org/anrosent/pk)
+`develop` [![Build Status](https://travis-ci.org/anrosent/pk.svg?branch=develop)](https://travis-ci.org/anrosent/pk)
 
 #Introduction
 `pk` is a way to expose services behind a layer that employs a shared-secret port-knocking protocol to control client access.
