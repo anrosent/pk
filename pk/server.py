@@ -20,6 +20,7 @@ class PkDaemon:
     selector = selectors.DefaultSelector()
     running = False
     runner = None
+    sockets = []
 
     def __init__(self, iptables=True):
         if iptables:
@@ -42,20 +43,19 @@ class PkDaemon:
 
     def _reserve(self, *knocks):
         logger.info("Knock is %s. Reserving ports" % str(knocks))
-        sockmap = {}
         for port in knocks:
             logger.debug("Reserving port %s" % port)
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             sock.bind((self.host, port))
             sock.listen(1)
-            sockmap[sock] = port
+            self.sockets.append(sock)
 
-        self.state = knock.KnockMuxer(knocks, sockmap) 
+        self.state = knock.KnockMuxer(knocks) 
         self._build_selector()
 
     def _build_selector(self):
-        for sock, port in self.state.get_sockmap().items():
+        for sock in self.sockets:
             self.selector.register(sock, selectors.EVENT_READ, self._knock_handler)
 
         self.stopper, recver = Pipe()
@@ -69,7 +69,8 @@ class PkDaemon:
         # TODO: something more efficient?
         conn, addr = sock.accept()
         client = conn.getpeername()
-        if self.state.put(sock, client):
+        localaddr = sock.getsockname()
+        if self.state.put(localaddr, client):
 
             # Unblock firewall to hidden service for this client
             # TODO: timeout/heartbeat until we shut again
