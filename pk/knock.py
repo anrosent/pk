@@ -18,7 +18,10 @@ class KnockMuxer:
         else:
             state = KnockState(self.knock)
             self.client_state[client] = state
-        return state.put(lp)
+        correct, done = state.put(lp)
+        if not correct:
+            del client_state[client]
+        return done
 
 class KnockState:
     
@@ -28,13 +31,12 @@ class KnockState:
 
     def put(self, port):
         if self.knock[self._ix] != port:
-            logger.debug("Wrong knock, resetting")
-            self._ix = 0
-            return False
+            logger.debug("Wrong knock, deleting")
+            return False, False
         elif self._ix == len(self.knock) - 1:
             logger.debug("Correct, sequence complete")
-            return True
+            return True, True
         else:
             self._ix += 1
             logger.debug("Correct, advancing to knock %s/%s" % (self._ix, len(self.knock)))
-            return False
+            return True, False
