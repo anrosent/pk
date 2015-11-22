@@ -1,5 +1,7 @@
 import socket
-from pk import client, server, common
+from pk import server 
+import pk_client as client
+import pk_common as common
 
 def testPkConnect():
 

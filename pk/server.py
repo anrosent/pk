@@ -5,9 +5,9 @@ import socket
 import selectors
 
 from multiprocessing import Pipe
-from pk import common
 from pk import firewall
 from pk import knock
+import pk_common as common
 
 logger = logging.getLogger(__name__)
 

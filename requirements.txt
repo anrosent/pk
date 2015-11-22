@@ -4,4 +4,6 @@ MarkupSafe==0.23
 Werkzeug==0.10.4
 itsdangerous==0.24
 nose==1.3.7
+pk-client-python==0.2
+pk-common-python==0.1
 python-iptables==0.9.0
